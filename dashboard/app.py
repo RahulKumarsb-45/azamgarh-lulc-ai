@@ -15,6 +15,15 @@ Integrated Sections:
 """
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+
+# Ensure repository root is on sys.path so modules like `dashboard` and `src` can be imported
+# when running from Streamlit Cloud or standalone execution.
+REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
 import streamlit as st
 
 from dashboard.data_loader import is_demo_mode
