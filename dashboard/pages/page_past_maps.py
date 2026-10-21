@@ -1,7 +1,14 @@
 """Page: Historical Land-Cover Maps (Past: 2019 & 2022)."""
 from __future__ import annotations
 
+import sys
 from pathlib import Path
+
+# Ensure repository root is on sys.path for direct or multipage execution
+REPO_ROOT = Path(__file__).resolve().parent.parent.parent
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
 import numpy as np
 import plotly.express as px
 import streamlit as st
@@ -129,3 +136,7 @@ def render_past_maps_page():
                 f'Class {c}: {CLASS_NAMES[c]}</div>',
                 unsafe_allow_html=True,
             )
+
+
+if __name__ == "__main__":
+    render_past_maps_page()

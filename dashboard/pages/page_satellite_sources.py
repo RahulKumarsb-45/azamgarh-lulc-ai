@@ -1,6 +1,14 @@
 """Page: Satellite Image Dates, Collections & Complete Data Provenance."""
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+
+# Ensure repository root is on sys.path for direct or multipage execution
+REPO_ROOT = Path(__file__).resolve().parent.parent.parent
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
 import pandas as pd
 import streamlit as st
 
@@ -217,3 +225,7 @@ def render_satellite_sources_page():
         - Calculates live cloud-free scene availability before and after applying Cloud Score+ thresholds.
         - Generates timestamped audit outputs in `data/outputs/audit/` with live API response times.
         """)
+
+
+if __name__ == "__main__":
+    render_satellite_sources_page()

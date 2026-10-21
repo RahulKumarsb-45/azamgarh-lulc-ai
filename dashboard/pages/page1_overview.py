@@ -1,6 +1,14 @@
 """Page 1: Executive Overview of Azamgarh LULC Monitoring System."""
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+
+# Ensure repository root is on sys.path for direct or multipage execution
+REPO_ROOT = Path(__file__).resolve().parent.parent.parent
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
 import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
@@ -104,3 +112,7 @@ def render_overview_page():
         "For viva defense, academic review, and forensic source traceability, open **📖 Project Data & Tools Documentation** in the sidebar. "
         "It provides complete mathematical derivations, software inventories, research citations, and image-by-image provenance records."
     )
+
+
+if __name__ == "__main__":
+    render_overview_page()

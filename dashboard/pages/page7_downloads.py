@@ -1,8 +1,15 @@
 """Page 7: Dataset Catalogue, Audit Summary, and Data Downloads."""
 from __future__ import annotations
 
-import io
+import sys
 from pathlib import Path
+
+# Ensure repository root is on sys.path for direct or multipage execution
+REPO_ROOT = Path(__file__).resolve().parent.parent.parent
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+import io
 import pandas as pd
 import streamlit as st
 
@@ -202,3 +209,7 @@ def render_downloads_page():
                     file_name="azamgarh_lulc_project_report.md",
                     mime="text/markdown",
                 )
+
+
+if __name__ == "__main__":
+    render_downloads_page()

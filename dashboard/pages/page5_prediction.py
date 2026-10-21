@@ -1,6 +1,14 @@
 """Page 5: Future LULC Projections (2030, 2035) and Historical Backtesting."""
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+
+# Ensure repository root is on sys.path for direct or multipage execution
+REPO_ROOT = Path(__file__).resolve().parent.parent.parent
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
 import numpy as np
 import pandas as pd
 import plotly.express as px
@@ -162,3 +170,7 @@ def render_prediction_page():
             st.dataframe(backtest_res["confusion_matrix"], use_container_width=True)
         else:
             st.info("Backtest pipeline ready: awaiting execution on historical map series.")
+
+
+if __name__ == "__main__":
+    render_prediction_page()

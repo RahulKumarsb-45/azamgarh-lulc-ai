@@ -1,6 +1,14 @@
 """Page 2: Interactive Land-Cover Maps and Multi-Year Spatial Viewer."""
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+
+# Ensure repository root is on sys.path for direct or multipage execution
+REPO_ROOT = Path(__file__).resolve().parent.parent.parent
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
 import folium
 import numpy as np
 import plotly.express as px
@@ -138,3 +146,7 @@ def render_maps_page():
                 st.caption("Azamgarh urban agglomeration, rural settlements, roads, impervious surface.")
             elif c == 5:
                 st.caption("Perennially bare soil, open fallow, sandbanks along floodplains.")
+
+
+if __name__ == "__main__":
+    render_maps_page()

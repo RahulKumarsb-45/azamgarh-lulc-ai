@@ -18,11 +18,25 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-# Ensure repository root is on sys.path so modules like `dashboard` and `src` can be imported
-# when running from Streamlit Cloud or standalone execution.
-REPO_ROOT = Path(__file__).resolve().parents[1]
+# 1. Reliably add repository root to sys.path before any project imports
+REPO_ROOT = Path(__file__).resolve().parent.parent
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
+
+# 2. Verify that this directory contains the dashboard package and dashboard/data_loader.py
+_dashboard_pkg = REPO_ROOT / "dashboard"
+_data_loader_mod = _dashboard_pkg / "data_loader.py"
+if not (_dashboard_pkg.is_dir() and _data_loader_mod.is_file()):
+    # Fallback to alternate resolution if symlinks are involved
+    for _candidate in [Path(__file__).parent.parent.absolute(), Path.cwd(), Path.cwd().parent]:
+        if (_candidate / "dashboard" / "data_loader.py").is_file():
+            REPO_ROOT = _candidate
+            if str(REPO_ROOT) not in sys.path:
+                sys.path.insert(0, str(REPO_ROOT))
+            break
+
+assert (REPO_ROOT / "dashboard").is_dir(), f"dashboard package directory not found at {REPO_ROOT}"
+assert (REPO_ROOT / "dashboard" / "data_loader.py").is_file(), f"data_loader.py not found at {REPO_ROOT}/dashboard"
 
 import streamlit as st
 

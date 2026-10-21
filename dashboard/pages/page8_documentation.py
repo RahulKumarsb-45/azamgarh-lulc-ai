@@ -1,7 +1,14 @@
 """Page 8: Complete Project Tools, Data Sources, Image Provenance & Methodology Documentation."""
 from __future__ import annotations
 
+import sys
 from pathlib import Path
+
+# Ensure repository root is on sys.path for direct or multipage execution
+REPO_ROOT = Path(__file__).resolve().parent.parent.parent
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
 import streamlit as st
 
 from dashboard.data_loader import is_demo_mode
@@ -77,3 +84,7 @@ def render_documentation_page():
             st.markdown(f"## {matching[0]}")
         else:
             st.markdown(content)
+
+
+if __name__ == "__main__":
+    render_documentation_page()

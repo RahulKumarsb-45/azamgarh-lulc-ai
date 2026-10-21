@@ -1,8 +1,15 @@
 """Page: Research Paper PDF Viewer, Source Markdown & Publication Figures Gallery."""
 from __future__ import annotations
 
-import base64
+import sys
 from pathlib import Path
+
+# Ensure repository root is on sys.path for direct or multipage execution
+REPO_ROOT = Path(__file__).resolve().parent.parent.parent
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+import base64
 import streamlit as st
 
 
@@ -100,3 +107,7 @@ def render_research_paper_page():
             st.text_area("Markdown Source Code", value=md_text, height=600)
         else:
             st.warning("Markdown source file not found.")
+
+
+if __name__ == "__main__":
+    render_research_paper_page()
