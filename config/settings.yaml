@@ -1,0 +1,53 @@
+study_area:
+  state: "Uttar Pradesh"
+  district: "Azamgarh"
+  # Tried in order; script reports every dataset that matches and uses the first match.
+  boundary_datasets:
+    - "FAO/GAUL/2015/level2"
+    - "FAO/GAUL/2025/level2"
+  # Official reference area from Census of India / District profile
+  official_reference_area_km2: 4054.0
+  official_reference_source: "District Census Handbook Azamgarh / Official Land Records"
+  reference_official_area_km2: 4054.0
+  target_crs: "EPSG:32644"
+  bbox: [82.80, 25.70, 83.65, 26.35]
+
+audit:
+  years: [2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]
+  # Initial proposal for seasonal windows (MM-DD). Adjust after reading the audit.
+  seasons:
+    rabi:        {start: "02-01", end: "03-31"}   # wheat/mustard peak
+    zaid:        {start: "04-01", end: "05-31"}   # post-harvest, pre-monsoon
+    monsoon:     {start: "07-01", end: "09-30"}   # included to SHOW the cloud problem
+    kharif_post: {start: "10-01", end: "11-30"}   # post-monsoon, rice maturity/harvest
+  cloud_score_threshold: 0.6    # Cloud Score+ cs_cdf; higher = stricter
+  coverage_scale_m: 100         # coarse scale keeps the audit cheap
+  min_valid_obs: 3              # "usable" pixel = at least this many clear observations
+  flag_good: 0.90               # heuristic thresholds (our choice, not a standard)
+  flag_partial: 0.50
+  landsat_cloud_max: 30         # CLOUD_COVER <= this counts as a low-cloud scene
+
+classification:
+  scale_m: 20
+  random_state: 42
+  indices: ["NDVI", "NDWI", "MNDWI", "NDBI"]
+  rf_params:
+    n_estimators: 100
+    max_depth: 16
+    min_samples_split: 2
+    min_samples_leaf: 2
+
+validation:
+  spatial_block_size_km: 5.0
+  train_ratio: 0.70
+  random_state: 42
+
+paths:
+  output_dir: "data/outputs"
+  classified_maps_dir: "data/outputs/classified"
+  change_analysis_dir: "data/outputs/change"
+  predictions_dir: "data/outputs/predictions"
+  metrics_dir: "data/outputs/metrics"
+  figures_dir: "data/outputs/figures"
+
+output_dir: "data/outputs/audit"

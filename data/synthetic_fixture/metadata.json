@@ -1,0 +1,16 @@
+{
+  "is_synthetic": true,
+  "disclaimer": "SYNTHETIC TEST FIXTURE ONLY - NOT OBSERVED SATELLITE DATA",
+  "bbox": [
+    82.8,
+    25.7,
+    83.65,
+    26.35
+  ],
+  "grid_size": 100,
+  "years": [
+    2019,
+    2022,
+    2025
+  ]
+}

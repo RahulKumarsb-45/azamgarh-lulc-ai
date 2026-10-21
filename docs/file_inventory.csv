@@ -1,0 +1,106 @@
+file_path,category,size_bytes,line_count,file_type,status,notes
+.env.example,Project Root Configuration & Documentation,106,2,.example,VERIFIED (Text),UTF-8 text file with 2 lines
+.gitignore,Other,236,19,.gitignore,VERIFIED (Text),UTF-8 text file with 19 lines
+FINAL_AUDIT.md,Project Root Configuration & Documentation,12215,192,.md,VERIFIED (Text),UTF-8 text file with 192 lines
+README.md,Project Root Configuration & Documentation,11800,185,.md,VERIFIED (Text),UTF-8 text file with 185 lines
+pytest.ini,Project Root Configuration & Documentation,192,7,.ini,VERIFIED (Text),UTF-8 text file with 7 lines
+requirements.lock.txt,Project Root Configuration & Documentation,3310,N/A,.txt,VERIFIED (Binary),Binary format (.txt)
+requirements.txt,Project Root Configuration & Documentation,485,26,.txt,VERIFIED (Text),UTF-8 text file with 26 lines
+config/class_schema.yaml,Configuration,1344,34,.yaml,VERIFIED (Text),UTF-8 text file with 34 lines
+config/settings.yaml,Configuration,2856,87,.yaml,VERIFIED (Text),UTF-8 text file with 87 lines
+dashboard/app.py,Dashboard,4454,156,.py,VERIFIED (Text),UTF-8 text file with 156 lines
+dashboard/data_loader.py,Dashboard,7344,232,.py,VERIFIED (Text),UTF-8 text file with 232 lines
+dashboard/pages/page1_overview.py,Dashboard,5215,99,.py,VERIFIED (Text),UTF-8 text file with 99 lines
+dashboard/pages/page2_maps.py,Dashboard,5983,140,.py,VERIFIED (Text),UTF-8 text file with 140 lines
+dashboard/pages/page3_change.py,Dashboard,6334,154,.py,VERIFIED (Text),UTF-8 text file with 154 lines
+dashboard/pages/page4_vegetation.py,Dashboard,6734,144,.py,VERIFIED (Text),UTF-8 text file with 144 lines
+dashboard/pages/page5_prediction.py,Dashboard,8793,164,.py,VERIFIED (Text),UTF-8 text file with 164 lines
+dashboard/pages/page6_accuracy.py,Dashboard,8202,172,.py,VERIFIED (Text),UTF-8 text file with 172 lines
+dashboard/pages/page7_downloads.py,Dashboard,9216,204,.py,VERIFIED (Text),UTF-8 text file with 204 lines
+data/labels/.gitkeep,Data Directory,0,0,.gitkeep,EMPTY (.gitkeep / placeholder),Empty placeholder or marker
+data/outputs/.gitkeep,Pipeline Output,0,0,.gitkeep,EMPTY (.gitkeep / placeholder),Empty placeholder or marker
+data/outputs/provenance.json,Pipeline Output,538,20,.json,VERIFIED (Text),UTF-8 text file with 20 lines
+data/outputs/change/class_area_summary.csv,Pipeline Output,869,16,.csv,VERIFIED (Text),UTF-8 text file with 16 lines
+data/outputs/change/critical_transitions_2019_2025.csv,Pipeline Output,2094,21,.csv,VERIFIED (Text),UTF-8 text file with 21 lines
+data/outputs/classified/lulc_map_2019.npy,Pipeline Output,40128,N/A,.npy,VERIFIED (Binary),Binary format (.npy)
+data/outputs/classified/lulc_map_2019.tif,Pipeline Output,3746,N/A,.tif,VERIFIED (Binary),Binary format (.tif)
+data/outputs/classified/lulc_map_2022.npy,Pipeline Output,40128,N/A,.npy,VERIFIED (Binary),Binary format (.npy)
+data/outputs/classified/lulc_map_2022.tif,Pipeline Output,3971,N/A,.tif,VERIFIED (Binary),Binary format (.tif)
+data/outputs/classified/lulc_map_2025.npy,Pipeline Output,40128,N/A,.npy,VERIFIED (Binary),Binary format (.npy)
+data/outputs/classified/lulc_map_2025.tif,Pipeline Output,4134,N/A,.tif,VERIFIED (Binary),Binary format (.tif)
+data/outputs/figures/map_figure_2019.png,Pipeline Output,105334,N/A,.png,VERIFIED (Binary),Binary format (.png)
+data/outputs/figures/map_figure_2022.png,Pipeline Output,107125,N/A,.png,VERIFIED (Binary),Binary format (.png)
+data/outputs/figures/map_figure_2025.png,Pipeline Output,109026,N/A,.png,VERIFIED (Binary),Binary format (.png)
+data/outputs/figures/predicted_map_2030.png,Pipeline Output,111805,N/A,.png,VERIFIED (Binary),Binary format (.png)
+data/outputs/figures/predicted_map_2035.png,Pipeline Output,114026,N/A,.png,VERIFIED (Binary),Binary format (.png)
+data/outputs/metrics/accuracy_metrics.json,Pipeline Output,2214,108,.json,VERIFIED (Text),UTF-8 text file with 108 lines
+data/outputs/metrics/backtest_results.json,Pipeline Output,168,7,.json,VERIFIED (Text),UTF-8 text file with 7 lines
+data/outputs/metrics/class_validation_metrics.csv,Pipeline Output,432,6,.csv,VERIFIED (Text),UTF-8 text file with 6 lines
+data/outputs/metrics/confusion_matrix.csv,Pipeline Output,274,6,.csv,VERIFIED (Text),UTF-8 text file with 6 lines
+data/outputs/metrics/olofsson_adjusted_areas.csv,Pipeline Output,593,6,.csv,VERIFIED (Text),UTF-8 text file with 6 lines
+data/outputs/predictions/predicted_map_2030.npy,Pipeline Output,40128,N/A,.npy,VERIFIED (Binary),Binary format (.npy)
+data/outputs/predictions/predicted_map_2030.tif,Pipeline Output,4405,N/A,.tif,VERIFIED (Binary),Binary format (.tif)
+data/outputs/predictions/predicted_map_2035.npy,Pipeline Output,40128,N/A,.npy,VERIFIED (Binary),Binary format (.npy)
+data/outputs/predictions/predicted_map_2035.tif,Pipeline Output,4596,N/A,.tif,VERIFIED (Binary),Binary format (.tif)
+data/processed/.gitkeep,Data Directory,0,0,.gitkeep,EMPTY (.gitkeep / placeholder),Empty placeholder or marker
+data/raw/.gitkeep,Data Directory,0,0,.gitkeep,EMPTY (.gitkeep / placeholder),Empty placeholder or marker
+data/synthetic_fixture/metadata.json,Synthetic Fixture,243,16,.json,VERIFIED (Text),UTF-8 text file with 16 lines
+data/synthetic_fixture/synthetic_map_2019.npy,Synthetic Fixture,40128,N/A,.npy,VERIFIED (Binary),Binary format (.npy)
+data/synthetic_fixture/synthetic_map_2022.npy,Synthetic Fixture,40128,N/A,.npy,VERIFIED (Binary),Binary format (.npy)
+data/synthetic_fixture/synthetic_map_2025.npy,Synthetic Fixture,40128,N/A,.npy,VERIFIED (Binary),Binary format (.npy)
+data/synthetic_fixture/synthetic_reference_samples.csv,Synthetic Fixture,145048,751,.csv,VERIFIED (Text),UTF-8 text file with 751 lines
+docs/architecture.md,Documentation,3858,115,.md,VERIFIED (Text),UTF-8 text file with 115 lines
+docs/audit_findings.md,Documentation,11875,139,.md,VERIFIED (Text),UTF-8 text file with 139 lines
+docs/change_log.md,Documentation,5511,47,.md,VERIFIED (Text),UTF-8 text file with 47 lines
+docs/cse_student_guide.md,Documentation,6399,112,.md,VERIFIED (Text),UTF-8 text file with 112 lines
+docs/dataset_catalogue.md,Documentation,4299,68,.md,VERIFIED (Text),UTF-8 text file with 68 lines
+docs/earth_engine_guide.md,Documentation,4791,116,.md,VERIFIED (Text),UTF-8 text file with 116 lines
+docs/file_inventory.csv,Documentation,10343,99,.csv,VERIFIED (Text),UTF-8 text file with 99 lines
+docs/final_verification_report.md,Documentation,11821,163,.md,VERIFIED (Text),UTF-8 text file with 163 lines
+docs/limitations_and_future_work.md,Documentation,3814,48,.md,VERIFIED (Text),UTF-8 text file with 48 lines
+docs/methodology.md,Documentation,5474,81,.md,VERIFIED (Text),UTF-8 text file with 81 lines
+docs/pending_live_results.md,Documentation,4852,77,.md,VERIFIED (Text),UTF-8 text file with 77 lines
+docs/phase0_guide.md,Documentation,7333,121,.md,VERIFIED (Text),UTF-8 text file with 121 lines
+docs/prediction_methodology.md,Documentation,3754,57,.md,VERIFIED (Text),UTF-8 text file with 57 lines
+docs/presentation_outline.md,Documentation,7887,127,.md,VERIFIED (Text),UTF-8 text file with 127 lines
+docs/project_report.md,Documentation,24834,274,.md,VERIFIED (Text),UTF-8 text file with 274 lines
+docs/project_report_outline.md,Documentation,6504,84,.md,VERIFIED (Text),UTF-8 text file with 84 lines
+docs/setup_windows.md,Documentation,2563,100,.md,VERIFIED (Text),UTF-8 text file with 100 lines
+docs/team_contributions.md,Documentation,3954,63,.md,VERIFIED (Text),UTF-8 text file with 63 lines
+docs/test_results.md,Documentation,3646,73,.md,VERIFIED (Text),UTF-8 text file with 73 lines
+docs/troubleshooting.md,Documentation,2980,71,.md,VERIFIED (Text),UTF-8 text file with 71 lines
+docs/validation_protocol.md,Documentation,4018,78,.md,VERIFIED (Text),UTF-8 text file with 78 lines
+docs/verification_matrix.csv,Documentation,7689,22,.csv,VERIFIED (Text),UTF-8 text file with 22 lines
+docs/viva_qa_guide.md,Documentation,20909,191,.md,VERIFIED (Text),UTF-8 text file with 191 lines
+src/__init__.py,Source Code,0,0,.py,EMPTY (.gitkeep / placeholder),Empty placeholder or marker
+src/pipeline.py,Source Code,11403,233,.py,VERIFIED (Text),UTF-8 text file with 233 lines
+src/analysis/__init__.py,Source Code,799,28,.py,VERIFIED (Text),UTF-8 text file with 28 lines
+src/analysis/area_stats.py,Source Code,4453,133,.py,VERIFIED (Text),UTF-8 text file with 133 lines
+src/analysis/change_detection.py,Source Code,3634,112,.py,VERIFIED (Text),UTF-8 text file with 112 lines
+src/analysis/vegetation.py,Source Code,3349,91,.py,VERIFIED (Text),UTF-8 text file with 91 lines
+src/data/__init__.py,Source Code,0,0,.py,EMPTY (.gitkeep / placeholder),Empty placeholder or marker
+src/data/data_audit.py,Source Code,11290,283,.py,VERIFIED (Text),UTF-8 text file with 283 lines
+src/data/gee_init.py,Source Code,5776,159,.py,VERIFIED (Text),UTF-8 text file with 159 lines
+src/data/sample_manager.py,Source Code,4794,144,.py,VERIFIED (Text),UTF-8 text file with 144 lines
+src/data/synthetic_fixture.py,Source Code,7261,200,.py,VERIFIED (Text),UTF-8 text file with 200 lines
+src/exports/__init__.py,Source Code,358,14,.py,VERIFIED (Text),UTF-8 text file with 14 lines
+src/exports/exporter.py,Source Code,5361,185,.py,VERIFIED (Text),UTF-8 text file with 185 lines
+src/features/__init__.py,Source Code,349,16,.py,VERIFIED (Text),UTF-8 text file with 16 lines
+src/features/indices.py,Source Code,6347,167,.py,VERIFIED (Text),UTF-8 text file with 167 lines
+src/models/__init__.py,Source Code,635,19,.py,VERIFIED (Text),UTF-8 text file with 19 lines
+src/models/classifier.py,Source Code,4175,111,.py,VERIFIED (Text),UTF-8 text file with 111 lines
+src/models/prediction.py,Source Code,9340,263,.py,VERIFIED (Text),UTF-8 text file with 263 lines
+src/models/validation.py,Source Code,7383,201,.py,VERIFIED (Text),UTF-8 text file with 201 lines
+tests/test_area_stats.py,Test Suite,2084,60,.py,VERIFIED (Text),UTF-8 text file with 60 lines
+tests/test_change_detection.py,Test Suite,2229,62,.py,VERIFIED (Text),UTF-8 text file with 62 lines
+tests/test_config.py,Test Suite,2494,70,.py,VERIFIED (Text),UTF-8 text file with 70 lines
+tests/test_dashboard_smoke.py,Test Suite,2133,62,.py,VERIFIED (Text),UTF-8 text file with 62 lines
+tests/test_error_handling.py,Test Suite,1703,47,.py,VERIFIED (Text),UTF-8 text file with 47 lines
+tests/test_exports.py,Test Suite,1626,57,.py,VERIFIED (Text),UTF-8 text file with 57 lines
+tests/test_geotiff_export.py,Test Suite,1569,51,.py,VERIFIED (Text),UTF-8 text file with 51 lines
+tests/test_indices.py,Test Suite,2533,84,.py,VERIFIED (Text),UTF-8 text file with 84 lines
+tests/test_live_ee.py,Test Suite,1017,25,.py,VERIFIED (Text),UTF-8 text file with 25 lines
+tests/test_pipeline_integration.py,Test Suite,2228,46,.py,VERIFIED (Text),UTF-8 text file with 46 lines
+tests/test_prediction.py,Test Suite,2491,79,.py,VERIFIED (Text),UTF-8 text file with 79 lines
+tests/test_samples.py,Test Suite,2203,66,.py,VERIFIED (Text),UTF-8 text file with 66 lines
+tests/test_validation.py,Test Suite,2959,78,.py,VERIFIED (Text),UTF-8 text file with 78 lines
