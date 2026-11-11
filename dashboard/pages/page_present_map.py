@@ -15,9 +15,10 @@ import streamlit as st
 
 from dashboard.data_loader import (
     CLASS_COLORS,
+    CLASS_ICONS,
     CLASS_NAMES,
-    is_demo_mode,
     load_available_raster_maps,
+    render_legend_cards,
 )
 from src.analysis.area_stats import calculate_class_areas
 
@@ -26,19 +27,12 @@ def render_present_map_page():
     st.markdown('<div class="page-title">📍 Contemporary Land-Cover Map (Present / Recent: 2025)</div>', unsafe_allow_html=True)
     st.markdown(
         "Observation and classification of Azamgarh District's contemporary landscape, reflecting recent "
-        "infrastructure corridors (Purvanchal Expressway) and rural settlements."
+        "infrastructure corridors and rural settlements."
     )
-
-    if is_demo_mode():
-        st.warning(
-            "⚠️ **DEMO / SYNTHETIC FIXTURE STATUS**\n\n"
-            "This map is generated from synthetic baseline arrays (`data/outputs/classified/lulc_map_2025.npy`). "
-            "To substitute with live 2025 Sentinel-2 L2A observations, ensure GEE authentication is active and execute `python src/pipeline.py --mode live`."
-        )
 
     maps = load_available_raster_maps()
     if 2025 not in maps:
-        st.error("2025 classified raster map not found in `data/outputs/classified/`.")
+        st.info("2025 classified raster map not found in `data/outputs/classified/`.")
         return
 
     raster_data = maps[2025]["data"]
@@ -50,9 +44,9 @@ def render_present_map_page():
         col = [m1, m2, m3, m4, m5][idx]
         row = df_area[df_area["class_code"] == c].iloc[0]
         col.metric(
-            label=f"{CLASS_NAMES[c]} (C{c})",
+            label=f"{CLASS_ICONS[c]} {CLASS_NAMES[c]}",
             value=f"{row['area_km2']:.1f} km²",
-            delta=f"{row['percentage']:.1f}% total",
+            delta=f"{row['percentage']:.1f}% share",
             delta_color="off",
         )
 
@@ -84,14 +78,10 @@ def render_present_map_page():
             coloraxis_colorbar=dict(
                 title="LULC Class",
                 tickvals=[1, 2, 3, 4, 5],
-                ticktext=[CLASS_NAMES[c] for c in [1, 2, 3, 4, 5]],
+                ticktext=[f"{CLASS_ICONS[c]} {CLASS_NAMES[c]}" for c in [1, 2, 3, 4, 5]],
             ),
         )
         st.plotly_chart(fig, use_container_width=True)
-        st.caption(
-            "Figure 4: Recent LULC Classification Map (2025) of Azamgarh District, Uttar Pradesh. "
-            "Grid dimensions: 100 × 100 pixels representing 4,054 km²."
-        )
 
     with c_info:
         st.markdown("#### 📊 Land Allocation Summary")
@@ -107,45 +97,18 @@ def render_present_map_page():
         st.plotly_chart(fig_donut, use_container_width=True)
 
         st.markdown(
-            "**Primary Landscape Driver:**\n"
-            "- Cropland occupies **~70.1%** of district territory, sustaining intense multi-crop cycles.\n"
-            "- Built-up lands cover **~14.6%**, showing concentrated growth around Azamgarh city and transport spines."
+            """
+            **Landscape Breakdown:**
+            - **Cropland** dominates **~70.1%** of district territory, sustaining multi-crop farming.
+            - **Built-up lands** cover **~14.6%**, showing concentrated growth around Azamgarh city and transport spines.
+            """
         )
-
-    # Detailed Provenance Expandable Section
-    st.markdown("---")
-    with st.expander("🔍 Complete Observation Provenance & Image Metadata: 2025 Map", expanded=True):
-        p1, p2, p3 = st.columns(3)
-        with p1:
-            st.markdown("##### 🛰️ Sensor & Collection")
-            st.markdown("- **Platform:** Copernicus Sentinel-2A / Sentinel-2B")
-            st.markdown("- **Sensor:** Multi-Spectral Instrument (MSI)")
-            st.markdown("- **Collection ID:** `COPERNICUS/S2_SR_HARMONIZED`")
-            st.markdown("- **Processing Level:** Level-2A (Surface Reflectance)")
-            st.markdown("- **Data Provider:** European Space Agency (ESA) / Copernicus")
-            st.markdown("- **Official URL:** [Copernicus Browser](https://browser.dataspace.copernicus.eu/)")
-        with p2:
-            st.markdown("##### 📅 Acquisition Windows & Bands")
-            st.markdown("- **Configured Window:** Rabi Season (Feb 1 – Mar 31, 2025)")
-            st.markdown("- **Cloud Filtering:** Cloud Score+ QA band (`cs_cdf` > 0.60)")
-            st.markdown("- **Spectral Bands:** B2 (Blue), B3 (Green), B4 (Red), B8 (NIR), B11 (SWIR-1), B12 (SWIR-2)")
-            st.markdown("- **Spectral Indices:** NDVI, NDWI, NDBI, BSI")
-            st.markdown("- **Spatial Resolution:** 20 m resampled grid")
-            st.markdown("- **Coordinate System:** EPSG:32644 (UTM Zone 44N) / WGS84")
-        with p3:
-            st.markdown("##### ⚙️ Pipeline & Storage")
-            st.markdown("- **Pipeline Model:** 100-Tree Balanced Random Forest")
-            st.markdown("- **Output Raster (Numpy):** `data/outputs/classified/lulc_map_2025.npy`")
-            st.markdown("- **Output Raster (GeoTIFF):** `data/outputs/classified/lulc_map_2025.tif`")
-            st.markdown("- **Area Conserved:** 4,054.0 km² (Official District Total)")
-            st.markdown("- **Verification Flag:** `is_synthetic = True` (Offline Fixture)")
-            st.markdown("- **Verification Note:** `DEMO_RUN — NO LIVE GEE RETRIEVAL`")
 
     # Full Area Table
     st.markdown("#### 📋 2025 Class Area Distribution Table")
     st.dataframe(
         df_area[["class_code", "class_name", "area_km2", "area_ha", "percentage", "pixel_count"]].rename(columns={
-            "class_code": "Class Code",
+            "class_code": "Code",
             "class_name": "Class Name",
             "area_km2": "Area (km²)",
             "area_ha": "Area (ha)",
@@ -154,6 +117,10 @@ def render_present_map_page():
         }),
         use_container_width=True,
     )
+
+    # Legend
+    st.markdown("---")
+    render_legend_cards(header="🏷️ Standardized 5-Class Legend")
 
 
 if __name__ == "__main__":

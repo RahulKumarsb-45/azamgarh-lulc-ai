@@ -27,19 +27,19 @@ from rasterio.transform import from_bounds
 
 
 CLASS_COLORS = {
-    1: "#F2D16B",  # Agriculture
-    2: "#2E7D32",  # Vegetation
-    3: "#1E88E5",  # Water
-    4: "#D32F2F",  # Built-up
-    5: "#A1887F",  # Barren
+    1: "#F2CF55",  # Agriculture / Cropland
+    2: "#27833B",  # Vegetation
+    3: "#2588D8",  # Water Bodies
+    4: "#D92F35",  # Built-up Areas
+    5: "#A58B80",  # Barren / Open Land
 }
 
 CLASS_NAMES = {
-    1: "Cropland",
+    1: "Agriculture / Cropland",
     2: "Vegetation",
-    3: "Water",
-    4: "Built-up",
-    5: "Barren",
+    3: "Water Bodies",
+    4: "Built-up Areas",
+    5: "Barren / Open Land",
 }
 
 

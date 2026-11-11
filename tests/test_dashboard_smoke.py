@@ -20,6 +20,11 @@ from dashboard.pages.page_past_maps import render_past_maps_page
 from dashboard.pages.page_present_map import render_present_map_page
 from dashboard.pages.page_research_paper import render_research_paper_page
 from dashboard.pages.page_satellite_sources import render_satellite_sources_page
+from dashboard.pages.page_about_data_sources import render_about_page
+from dashboard.pages.page_agriculture import render_agriculture_page
+from dashboard.pages.page_barren import render_barren_page
+from dashboard.pages.page_builtup import render_builtup_page
+from dashboard.pages.page_water import render_water_page
 
 
 def test_dashboard_imports_and_components():
@@ -37,6 +42,11 @@ def test_dashboard_imports_and_components():
     assert callable(render_future_predictions_page)
     assert callable(render_satellite_sources_page)
     assert callable(render_research_paper_page)
+    assert callable(render_about_page)
+    assert callable(render_agriculture_page)
+    assert callable(render_water_page)
+    assert callable(render_builtup_page)
+    assert callable(render_barren_page)
 
 
 def test_data_loader_fallbacks():
@@ -69,6 +79,11 @@ def test_all_dashboard_page_renders():
     render_future_predictions_page()
     render_satellite_sources_page()
     render_research_paper_page()
+    render_about_page()
+    render_agriculture_page()
+    render_water_page()
+    render_builtup_page()
+    render_barren_page()
 
 
 def test_demo_mode_detection():

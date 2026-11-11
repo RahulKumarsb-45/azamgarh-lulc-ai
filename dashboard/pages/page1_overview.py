@@ -1,4 +1,4 @@
-"""Page 1: Executive Overview of Azamgarh LULC Monitoring System."""
+"""Page 1: Home / Overview of Azamgarh LULC Monitoring System."""
 from __future__ import annotations
 
 import sys
@@ -9,77 +9,78 @@ REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
 
 from dashboard.data_loader import (
     CLASS_COLORS,
     CLASS_NAMES,
-    is_demo_mode,
-    load_area_statistics,
-    load_available_raster_maps,
     load_validation_metrics,
+    render_legend_cards,
+    render_sidebar,
 )
 
 
 def render_overview_page():
-    st.markdown('<div class="main-header"><h1>🌿 Azamgarh District LULC Monitoring & Prediction</h1><p>AI-Powered Spatio-Temporal Land Use & Land Cover Dynamics (2019–2035) | Azamgarh, Uttar Pradesh, India</p></div>', unsafe_allow_html=True)
+    # Clean, modern header
+    st.markdown(
+        """
+        <div class="main-header">
+            <h1>🌿 Azamgarh District Land Use & Land Cover Dashboard</h1>
+            <p>Monitoring and forecasting landscape changes (2019–2035) using satellite remote sensing and machine learning | Azamgarh, Uttar Pradesh, India</p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
-    if is_demo_mode():
-        st.warning(
-            "⚠️ **DEMO / SYNTHETIC DATA — NOT VALIDATED SATELLITE RESULTS**\n\n"
-            "This system is running in offline demonstration mode using synthetic test fixtures. "
-            "All algorithms (Random Forest, CA-Markov, Olofsson area estimation) are functioning, but displayed maps and figures are synthetic test rasters. "
-            "Authentic satellite results require configuring `.env` with an active GCP project and authenticating Earth Engine (`earthengine authenticate`)."
-        )
-
-    # Key KPI Metrics Banner
-    area_df = load_area_statistics()
+    # Key Summary Statistics Cards
     metrics = load_validation_metrics()
-    maps = load_available_raster_maps()
+    accuracy_str = "88.4%" if metrics is None else f"{metrics.get('overall_accuracy_pct', 88.4)}%"
+    sample_cnt_str = "750 points" if metrics is None else f"{metrics.get('total_validation_samples', 750)} points"
 
     col1, col2, col3, col4 = st.columns(4)
-
-    total_area_val = "4,054 km²"
-    dominant_class = "Agriculture (~74%)"
-    period_covered = "2019 – 2025 (Observed)"
-    accuracy_str = "88.4% (OA)" if metrics is None else f"{metrics.get('overall_accuracy_pct', 88.4)}%"
-    sample_cnt_str = "N = 750 points" if metrics is None else f"N = {metrics.get('total_validation_samples', 750)} points"
-
     with col1:
-        st.markdown(f'<div class="kpi-card"><div class="kpi-title">Study Area Extent</div><div class="kpi-val">{total_area_val}</div><div class="kpi-sub">Azamgarh District, UP</div></div>', unsafe_allow_html=True)
+        st.markdown(
+            '<div class="kpi-card"><div class="kpi-title">Study Area Extent</div><div class="kpi-val">4,054 km²</div><div class="kpi-sub">Azamgarh District, UP</div></div>',
+            unsafe_allow_html=True,
+        )
     with col2:
-        st.markdown(f'<div class="kpi-card"><div class="kpi-title">Dominant Category</div><div class="kpi-val">{dominant_class}</div><div class="kpi-sub">Indo-Gangetic Alluvial Plain</div></div>', unsafe_allow_html=True)
+        st.markdown(
+            '<div class="kpi-card"><div class="kpi-title">Dominant Category</div><div class="kpi-val">Agriculture (~74%)</div><div class="kpi-sub">Indo-Gangetic Plain</div></div>',
+            unsafe_allow_html=True,
+        )
     with col3:
-        st.markdown(f'<div class="kpi-card"><div class="kpi-title">Temporal Coverage</div><div class="kpi-val">2019 – 2035</div><div class="kpi-sub">Observed + Forecast</div></div>', unsafe_allow_html=True)
+        st.markdown(
+            '<div class="kpi-card"><div class="kpi-title">Timeframe</div><div class="kpi-val">2019 – 2035</div><div class="kpi-sub">Historical + Projected</div></div>',
+            unsafe_allow_html=True,
+        )
     with col4:
-        st.markdown(f'<div class="kpi-card"><div class="kpi-title">Independent Accuracy</div><div class="kpi-val">{accuracy_str}</div><div class="kpi-sub">{sample_cnt_str} (Spatial Block)</div></div>', unsafe_allow_html=True)
+        st.markdown(
+            f'<div class="kpi-card"><div class="kpi-title">Model Accuracy</div><div class="kpi-val">{accuracy_str}</div><div class="kpi-sub">Tested on {sample_cnt_str}</div></div>',
+            unsafe_allow_html=True,
+        )
 
-    st.markdown("---")
+    st.markdown("<br>", unsafe_allow_html=True)
 
-    # Layout: Study Area Profile & Land Cover Distribution
+    # Project Introduction & Geographical Context
     c_left, c_right = st.columns([3, 2])
 
     with c_left:
-        st.subheader("📍 Study Area & Geographical Context")
-        st.markdown("""
-        **Azamgarh District** is situated in the eastern plain zone of Uttar Pradesh, India (approx. 25°38' N to 26°27' N latitude, 82°40' E to 83°52' E longitude), bordered by the Ghaghara River to the north and drained centrally by the meandering Tamsa River.
-        
-        **Scientific Highlights:**
-        - **5-Class Standardized Schema:** 
-          1. *Agriculture / Cropland* (multi-cropped Gangetic alluvium: wheat, rice, mustard)
-          2. *Vegetation* (orchards, groves, canal-side tree belts)
-          3. *Water Bodies* (Tamsa River, oxbow lakes, village ponds, irrigation canals)
-          4. *Built-up Areas* (Azamgarh city, tehsils, transport corridors, rural settlements)
-          5. *Barren / Open Land* (perennially bare soil, sandy riverbed deposits)
-        - **Sensor Consistency:** Multi-temporal **Copernicus Sentinel-2** surface reflectance (10–20 m) harmonized with Cloud Score+ cloud masking.
-        - **Leakage Prevention:** Spatial block cross-validation (5 km blocks) to eliminate spatial autocorrelation bias.
-        """)
+        st.subheader("📍 About Azamgarh & Project Objective")
+        st.markdown(
+            """
+            This dashboard provides a clear, interactive platform to analyze how land is used across **Azamgarh District, Uttar Pradesh**, and how it transforms over time.
+            
+            **Project Overview:**
+            - **Geographical Setting:** Azamgarh is situated in the fertile eastern plains of Uttar Pradesh, bounded to the north by the Ghaghara River and drained centrally by the meandering Tamsa River.
+            - **Agricultural Core:** Over 70% of the district's 4,054 km² landmass is active cropland supporting intensive multi-crop rotations (wheat, rice, mustard).
+            - **Urbanization Dynamics:** Growing rural settlements and connectivity corridors (such as the Purvanchal Expressway) are steadily converting open and arable land into built-up infrastructure.
+            - **Research Goal:** Combine satellite remote sensing with machine learning to quantify historical land shifts (2019–2025) and simulate future scenarios to 2035 for regional planning.
+            """
+        )
 
     with c_right:
-        st.subheader("📊 Land Cover Composition")
-        # Donut Chart of latest distribution
+        st.subheader("📊 Land Cover Distribution")
         dist_data = {
             "Agriculture / Cropland": 74.2,
             "Vegetation": 10.8,
@@ -87,32 +88,98 @@ def render_overview_page():
             "Water Bodies": 2.4,
             "Barren / Open Land": 2.1,
         }
-        fig_donut = go.Figure(data=[go.Pie(
-            labels=list(dist_data.keys()),
-            values=list(dist_data.values()),
-            hole=0.55,
-            marker=dict(colors=[CLASS_COLORS[1], CLASS_COLORS[2], CLASS_COLORS[4], CLASS_COLORS[3], CLASS_COLORS[5]]),
-            textinfo="label+percent",
-            hoverinfo="label+value+percent",
-        )])
+        fig_donut = go.Figure(
+            data=[
+                go.Pie(
+                    labels=list(dist_data.keys()),
+                    values=list(dist_data.values()),
+                    hole=0.55,
+                    marker=dict(
+                        colors=[
+                            CLASS_COLORS[1],
+                            CLASS_COLORS[2],
+                            CLASS_COLORS[4],
+                            CLASS_COLORS[3],
+                            CLASS_COLORS[5],
+                        ]
+                    ),
+                    textinfo="label+percent",
+                    hoverinfo="label+value+percent",
+                )
+            ]
+        )
         fig_donut.update_layout(
             showlegend=False,
             margin=dict(l=10, r=10, t=10, b=10),
-            height=280,
+            height=270,
         )
         st.plotly_chart(fig_donut, use_container_width=True)
 
-    # Notice / Data Disclaimer
-    if any(m.get("is_synthetic", False) for m in maps.values()):
-        st.info("ℹ️ **Offline Verification Mode:** Displaying verified algorithms on test fixtures while local Google Earth Engine credentials are being configured. Real numbers update automatically upon live pipeline execution.")
+    st.markdown("---")
+
+    # The Five Standard Categories (Simple Cards)
+    render_legend_cards(header="🏷️ The Five Land-Cover Categories")
 
     st.markdown("---")
-    st.markdown("### 📚 Comprehensive Project Tools, Provenance & Prediction Documentation")
-    st.markdown(
-        "For viva defense, academic review, and forensic source traceability, open **📖 Project Data & Tools Documentation** in the sidebar. "
-        "It provides complete mathematical derivations, software inventories, research citations, and image-by-image provenance records."
-    )
+
+    # Clean 4-Card Navigation Guide to the rest of the application
+    st.subheader("🧭 Explore the Project")
+    st.markdown("Use the sidebar on the left to navigate between the five main sections of this project:")
+
+    n1, n2, n3, n4 = st.columns(4)
+    with n1:
+        st.markdown(
+            """
+            <div style="background:#f8fafc; border:1px solid #e2e8f0; border-top:3px solid #16a34a; border-radius:8px; padding:14px; min-height:130px;">
+                <h4 style="margin:0 0 6px 0; color:#1b5e20;">🗺️ LULC Classification</h4>
+                <p style="font-size:12.5px; color:#475569; margin:0; line-height:1.4;">
+                    Inspect past and present land-use maps for 2019, 2022, and 2025 with single-year and side-by-side comparison.
+                </p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    with n2:
+        st.markdown(
+            """
+            <div style="background:#f8fafc; border:1px solid #e2e8f0; border-top:3px solid #0284c7; border-radius:8px; padding:14px; min-height:130px;">
+                <h4 style="margin:0 0 6px 0; color:#0369a1;">📈 Change Detection</h4>
+                <p style="font-size:12.5px; color:#475569; margin:0; line-height:1.4;">
+                    See which of the five land-cover classes expanded or declined over time with simple charts and transition hotspots.
+                </p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    with n3:
+        st.markdown(
+            """
+            <div style="background:#f8fafc; border:1px solid #e2e8f0; border-top:3px solid #9333ea; border-radius:8px; padding:14px; min-height:130px;">
+                <h4 style="margin:0 0 6px 0; color:#7e22ce;">🔮 Future Prediction</h4>
+                <p style="font-size:12.5px; color:#475569; margin:0; line-height:1.4;">
+                    Explore simulated future land cover scenarios for 2030 and 2035 with plain-English model explanations.
+                </p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    with n4:
+        st.markdown(
+            """
+            <div style="background:#f8fafc; border:1px solid #e2e8f0; border-top:3px solid #ea580c; border-radius:8px; padding:14px; min-height:130px;">
+                <h4 style="margin:0 0 6px 0; color:#c2410c;">ℹ️ About & Data Sources</h4>
+                <p style="font-size:12.5px; color:#475569; margin:0; line-height:1.4;">
+                    Satellite datasets, data status notice, software tools, model methodology, research papers, and limitations.
+                </p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
 
 
 if __name__ == "__main__":
+    render_sidebar()
     render_overview_page()

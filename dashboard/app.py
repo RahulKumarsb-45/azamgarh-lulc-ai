@@ -1,17 +1,19 @@
-"""Main Streamlit Application Controller for Azamgarh LULC Monitoring & Research System.
+"""Main Streamlit Application Controller for Azamgarh LULC Monitoring & Prediction System.
 
-Integrated Sections:
-1. Past LULC Maps (Historical: 2019, 2022)
-2. Present/Recent LULC Map (Contemporary: 2025)
-3. Future Prediction Maps (CA-Markov: 2030, 2035)
-4. Change Detection (Past vs Present Transitions)
-5. Satellite Image Dates & Sources (Data Provenance)
-6. Research Paper PDF & Publication Figures (PDF Viewer & Download)
-7. System Overview & Executive Summary
-8. Vegetation Dynamics (NDVI Phenology)
-9. Model Accuracy & Validation Metrics
-10. Raw Data, Rasters & GeoTIFF Downloads
-11. Complete Project Data & Tools Documentation
+Navigation Structure:
+- Main Navigation:
+  1. Home
+  2. LULC Classification
+  3. Change Detection
+  4. Future Prediction
+  5. About & Data Sources
+
+- Land Cover Analysis (Five Dedicated Class Pages):
+  1. 🌾 Agriculture Analysis
+  2. 🌳 Vegetation Analysis
+  3. 💧 Water Bodies Analysis
+  4. 🏙️ Built-up Area Analysis
+  5. 🏜️ Barren / Open Land Analysis
 """
 from __future__ import annotations
 
@@ -23,11 +25,10 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-# 2. Verify that this directory contains the dashboard package and dashboard/data_loader.py
+# 2. Verify dashboard package directory
 _dashboard_pkg = REPO_ROOT / "dashboard"
 _data_loader_mod = _dashboard_pkg / "data_loader.py"
 if not (_dashboard_pkg.is_dir() and _data_loader_mod.is_file()):
-    # Fallback to alternate resolution if symlinks are involved
     for _candidate in [Path(__file__).parent.parent.absolute(), Path.cwd(), Path.cwd().parent]:
         if (_candidate / "dashboard" / "data_loader.py").is_file():
             REPO_ROOT = _candidate
@@ -40,104 +41,105 @@ assert (REPO_ROOT / "dashboard" / "data_loader.py").is_file(), f"data_loader.py 
 
 import streamlit as st
 
-from dashboard.data_loader import is_demo_mode
 from dashboard.pages.page1_overview import render_overview_page
 from dashboard.pages.page2_maps import render_maps_page
 from dashboard.pages.page3_change import render_change_page
 from dashboard.pages.page4_vegetation import render_vegetation_page
-from dashboard.pages.page5_prediction import render_prediction_page
-from dashboard.pages.page6_accuracy import render_accuracy_page
-from dashboard.pages.page7_downloads import render_downloads_page
-from dashboard.pages.page8_documentation import render_documentation_page
+from dashboard.pages.page_about_data_sources import render_about_page
+from dashboard.pages.page_agriculture import render_agriculture_page
+from dashboard.pages.page_barren import render_barren_page
+from dashboard.pages.page_builtup import render_builtup_page
 from dashboard.pages.page_future_predictions import render_future_predictions_page
-from dashboard.pages.page_past_maps import render_past_maps_page
-from dashboard.pages.page_present_map import render_present_map_page
-from dashboard.pages.page_research_paper import render_research_paper_page
-from dashboard.pages.page_satellite_sources import render_satellite_sources_page
+from dashboard.pages.page_water import render_water_page
 
 # Configure Page
 st.set_page_config(
-    page_title="Azamgarh LULC Monitoring & Prediction System",
+    page_title="Azamgarh LULC Monitoring & Prediction Dashboard",
     page_icon="🌿",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
-# Professional CSS Styling
+# Clean, Modern Professional CSS Styling
 CUSTOM_CSS = """
 <style>
-    /* Google Fonts */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
     
     html, body, [class*="css"] {
-        font-family: 'Inter', sans-serif;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        color: #1e293b;
     }
 
+    /* Main Header */
     .main-header {
-        background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 100%);
-        color: white;
+        background: linear-gradient(135deg, #1e3a1e 0%, #2e7d32 100%);
+        color: #ffffff;
         padding: 24px 28px;
         border-radius: 10px;
-        margin-bottom: 24px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        margin-bottom: 22px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
     }
     .main-header h1 {
         margin: 0;
-        font-size: 26px;
+        font-size: 24px;
         font-weight: 700;
         color: #ffffff;
+        letter-spacing: -0.3px;
     }
     .main-header p {
         margin: 6px 0 0 0;
         font-size: 14.5px;
         opacity: 0.92;
         color: #e8f5e9;
+        line-height: 1.4;
     }
 
+    /* Page Section Title */
     .page-title {
         font-size: 22px;
         font-weight: 700;
-        color: #1b5e20;
-        margin-bottom: 14px;
-        border-bottom: 2px solid #e0e0e0;
+        color: #1e3a1e;
+        margin-bottom: 12px;
         padding-bottom: 8px;
+        border-bottom: 2px solid #e2e8f0;
     }
 
+    /* KPI Summary Cards */
     .kpi-card {
         background: #ffffff;
-        border: 1px solid #e0e0e0;
+        border: 1px solid #e2e8f0;
         border-radius: 8px;
-        padding: 16px;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+        padding: 16px 14px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
         text-align: center;
         border-top: 4px solid #2e7d32;
     }
     .kpi-title {
-        font-size: 13px;
-        color: #616161;
+        font-size: 12.5px;
+        color: #64748b;
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.5px;
     }
     .kpi-val {
-        font-size: 24px;
+        font-size: 23px;
         font-weight: 700;
-        color: #212121;
+        color: #0f172a;
         margin: 6px 0 2px 0;
     }
     .kpi-sub {
         font-size: 12px;
-        color: #757575;
+        color: #64748b;
     }
 
-    /* Sidebar adjustments */
+    /* Sidebar Styling */
     [data-testid="stSidebar"] {
         background-color: #f8fafc;
         border-right: 1px solid #e2e8f0;
     }
     .sidebar-badge {
-        background-color: #e8f5e9;
-        color: #1b5e20;
+        background-color: #dcfce7;
+        color: #166534;
         padding: 4px 10px;
         border-radius: 12px;
         font-size: 12px;
@@ -150,49 +152,29 @@ CUSTOM_CSS = """
 st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
 
 
+MAIN_PAGES = {
+    "🏠 Home": render_overview_page,
+    "🗺️ LULC Classification": render_maps_page,
+    "📈 Change Detection": render_change_page,
+    "🔮 Future Prediction": render_future_predictions_page,
+    "ℹ️ About & Data Sources": render_about_page,
+}
+
+ANALYSIS_PAGES = {
+    "🌾 Agriculture Analysis": render_agriculture_page,
+    "🌳 Vegetation Analysis": render_vegetation_page,
+    "💧 Water Bodies Analysis": render_water_page,
+    "🏙️ Built-up Area Analysis": render_builtup_page,
+    "🏜️ Barren / Open Land Analysis": render_barren_page,
+}
+
+
+from dashboard.data_loader import render_sidebar
+
+
 def main():
-    # Sidebar Navigation
-    with st.sidebar:
-        st.markdown('<span class="sidebar-badge">B.Tech Minor Project</span>', unsafe_allow_html=True)
-        st.markdown("### 🛰️ Research Navigation")
-
-        pages = {
-            # Core Research Deliverables Requested by User
-            "🕒 Past LULC Maps": render_past_maps_page,
-            "📍 Present/Recent LULC Map": render_present_map_page,
-            "🔮 Future Prediction Maps": render_future_predictions_page,
-            "📈 Change Detection": render_change_page,
-            "🛰️ Satellite Image Dates & Sources": render_satellite_sources_page,
-            "📄 Research Paper PDF": render_research_paper_page,
-            # Supporting Analytics & Diagnostics
-            "🌿 System Overview": render_overview_page,
-            "🌱 Vegetation (NDVI)": render_vegetation_page,
-            "🎯 Model Accuracy": render_accuracy_page,
-            "📦 Data & Downloads": render_downloads_page,
-            "📖 Master Project Documentation": render_documentation_page,
-        }
-
-        selected_page = st.radio(
-            "Select Section:",
-            list(pages.keys()),
-            label_visibility="collapsed",
-        )
-
-        st.markdown("---")
-        st.markdown("**Study Area:** Azamgarh, UP, India")
-        if is_demo_mode():
-            st.markdown("**Data Mode:** ⚠️ Synthetic / Demo Fixture")
-            st.caption("Live Sentinel-2 pending Earth Engine auth")
-        else:
-            st.markdown("**Sensor:** Sentinel-2 SR (10–20 m)")
-        st.markdown("**ML Model:** Random Forest + CA-Markov")
-
-        st.markdown("---")
-        st.caption("Azamgarh LULC Research | Final Year CSE")
-
-    # Render Selected Page
-    render_func = pages[selected_page]
-    render_func()
+    render_sidebar()
+    render_overview_page()
 
 
 if __name__ == "__main__":

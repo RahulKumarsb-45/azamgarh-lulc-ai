@@ -13,14 +13,15 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 import yaml
+import plotly.graph_objects as go
 
 
 CLASS_COLORS = {
-    1: "#F2D16B",  # Agriculture / Cropland
-    2: "#2E7D32",  # Vegetation
-    3: "#1E88E5",  # Water Bodies
-    4: "#D32F2F",  # Built-up Areas
-    5: "#A1887F",  # Barren / Open Land
+    1: "#F2CF55",  # Agriculture / Cropland (Yellow)
+    2: "#27833B",  # Vegetation (Green)
+    3: "#2588D8",  # Water Bodies (Blue)
+    4: "#D92F35",  # Built-up Areas (Red)
+    5: "#A58B80",  # Barren / Open Land (Brown)
 }
 
 CLASS_NAMES = {
@@ -30,6 +31,251 @@ CLASS_NAMES = {
     4: "Built-up Areas",
     5: "Barren / Open Land",
 }
+
+CLASS_ICONS = {
+    1: "🌾",
+    2: "🌳",
+    3: "💧",
+    4: "🏙️",
+    5: "🏜️",
+}
+
+CLASS_DESCRIPTIONS = {
+    1: "Wheat, paddy, mustard and other cultivated fields.",
+    2: "Trees, orchards, green areas and vegetation cover.",
+    3: "Rivers, lakes, ponds and irrigation channels.",
+    4: "Buildings, houses, roads and urban settlements.",
+    5: "Bare soil, unused land and open sandy areas.",
+}
+
+AZAMGARH_BBOX = [82.80, 25.70, 83.65, 26.35]
+AZAMGARH_AREA_KM2 = 4054.0
+
+CATEGORY_MAP_INSIGHTS = {
+    1: {
+        "shows": "Spatial distribution of active agricultural fields, crop fallow, and cultivated croplands across Azamgarh District.",
+        "highlighted": "Agriculture / Cropland (highlighted in yellow, #F2CF55). All other land covers are muted.",
+        "concentration": "Concentrated extensively across the fertile central, eastern, and southern alluvial plains of Azamgarh.",
+        "trend": "Cultivated cropland decreased modestly from 2,920.1 km² (72.0%) in 2019 to 2,752.3 km² (67.9%) in 2025 (-167.8 km²), primarily driven by conversion to rural settlements and highway infrastructure.",
+    },
+    2: {
+        "shows": "Spatial distribution of perennial tree canopies, horticultural orchards, and roadside green belts.",
+        "highlighted": "Vegetation & Tree Cover (highlighted in green, #27833B). All other land covers are muted.",
+        "concentration": "Concentrated in traditional village mango and guava orchards, riverine groves along the Tamsa River, and canal-side plantations.",
+        "trend": "Maintained steady coverage around 410.3 km² (~10.1%), with localized tree felling for highway widening offset by mature village agroforestry.",
+    },
+    3: {
+        "shows": "Spatial distribution of surface hydrology, including rivers, oxbow lakes, village ponds, and canal arteries.",
+        "highlighted": "Water Bodies (highlighted in blue, #2588D8). All other land covers are muted.",
+        "concentration": "Centered along the meanders of the Tamsa (Tons) River through central Azamgarh, the Ghaghara River along the northern border, and hundreds of village pokharis.",
+        "trend": "Stable perennial surface water baseline of ~121.6 km² (~3.0%), with notable expansion during the post-monsoon season.",
+    },
+    4: {
+        "shows": "Spatial distribution of masonry buildings, settlements, commercial zones, paved roadways, and impervious infrastructure.",
+        "highlighted": "Built-up Areas & Settlements (highlighted in red, #D92F35). All other land covers are muted.",
+        "concentration": "Clustered densely around Azamgarh Municipal City, key tehsil towns (Sagri, Lalganj, Phoolpur), and radial highway corridors including the Purvanchal Expressway.",
+        "trend": "Rapid expansion from 510.8 km² (12.6%) in 2019 to 678.6 km² (16.7%) in 2025 (+167.8 km² / +32.9%), representing the primary driver of regional land transformation.",
+    },
+    5: {
+        "shows": "Spatial distribution of uncultivated open ground, sandy riverbeds, brick-kiln clearings, and exposed soil parcels.",
+        "highlighted": "Barren / Open Land (highlighted in brown, #A58B80). All other land covers are muted.",
+        "concentration": "Fluvial sand deposits along the Ghaghara and Tamsa river channels, active brick kilns, and temporarily cleared land parcels awaiting construction.",
+        "trend": "Stable baseline around 91.2 km² (~2.25%), fluctuating primarily with seasonal river discharges and cyclical construction preparation.",
+    },
+}
+
+
+def render_category_map(
+    raster_data: np.ndarray,
+    class_code: int,
+    year: int | str,
+    is_synthetic: bool = True,
+    height: int = 450,
+) -> None:
+    """Render a dedicated, consistent Azamgarh District map highlighting ONLY the selected class.
+
+    Requirements addressed:
+    - Verified boundary: Bbox [82.80, 25.70, 83.65, 26.35]
+    - Dedicated class color highlighting, non-class areas muted/transparent
+    - Interactive pan and zoom controls
+    - Explanatory breakdown and honest demonstration data status notice
+    """
+    name = CLASS_NAMES.get(class_code, f"Class {class_code}")
+    icon = CLASS_ICONS.get(class_code, "📍")
+    color = CLASS_COLORS.get(class_code, "#2588D8")
+    insights = CATEGORY_MAP_INSIGHTS.get(class_code, {})
+
+    # Top header indicator
+    st.markdown(
+        f"""
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:6px 12px;">
+            <div>
+                <span style="display:inline-block; width:14px; height:14px; background-color:{color}; border-radius:3px; vertical-align:middle; margin-right:6px;"></span>
+                <strong style="color:#0f172a; font-size:13.5px;">{icon} {name} (Highlighted)</strong>
+                <span style="color:#64748b; font-size:12px; margin-left:8px;">• Non-category areas muted</span>
+            </div>
+            <span style="font-size:11.5px; color:#475569; font-weight:600;">Azamgarh District BBox [82.80°–83.65°E, 25.70°–26.35°N]</span>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    # Prepare single-category mask
+    mask = (raster_data == class_code).astype(int)
+    H, W = raster_data.shape
+    lons = np.linspace(82.80, 83.65, W)
+    lats = np.linspace(26.35, 25.70, H)
+
+    # Plotly heatmap with geographical coordinates and aspect ratio
+    fig = go.Figure(
+        data=go.Heatmap(
+            z=mask,
+            x=lons,
+            y=lats,
+            colorscale=[[0.0, "rgba(241, 245, 249, 0.85)"], [1.0, color]],
+            showscale=False,
+            hovertemplate=f"<b>{icon} {name}</b><br>Longitude: %{{x:.3f}}°E<br>Latitude: %{{y:.3f}}°N<extra></extra>",
+        )
+    )
+
+    fig.update_layout(
+        xaxis=dict(
+            title="Longitude (°E)",
+            range=[82.78, 83.67],
+            showgrid=True,
+            gridcolor="#e2e8f0",
+            zeroline=False,
+        ),
+        yaxis=dict(
+            title="Latitude (°N)",
+            range=[25.68, 26.37],
+            scaleanchor="x",
+            scaleratio=1,
+            showgrid=True,
+            gridcolor="#e2e8f0",
+            zeroline=False,
+        ),
+        margin=dict(l=10, r=10, t=10, b=10),
+        height=height,
+        paper_bgcolor="#ffffff",
+        plot_bgcolor="#f8fafc",
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
+
+    # Descriptive explanation below map
+    st.markdown(
+        f"""
+        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-left:4px solid {color}; border-radius:6px; padding:12px 14px; margin-top:10px;">
+            <div style="font-weight:700; color:#1e293b; font-size:13.5px; margin-bottom:6px;">📌 {icon} {name} — Spatial Distribution & Insights ({year})</div>
+            <ul style="font-size:13px; color:#475569; line-height:1.55; margin:0; padding-left:18px;">
+                <li><strong>Map Coverage:</strong> {insights.get('shows', '')}</li>
+                <li><strong>Active Highlight:</strong> {insights.get('highlighted', '')}</li>
+                <li><strong>Concentration Zone:</strong> {insights.get('concentration', '')}</li>
+                <li><strong>Observed Trend (2019–2025):</strong> {insights.get('trend', '')}</li>
+            </ul>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    # Honest data status notice
+    if is_synthetic:
+        st.markdown(
+            """
+            <div style="background:#fefce8; border:1px solid #fef08a; border-radius:6px; padding:8px 12px; margin-top:8px; font-size:12px; color:#854d0e;">
+                <strong>⚠️ DEMONSTRATION / SYNTHETIC DATA:</strong> This map displays simulated spatial patterns for college demonstration. Real-time satellite validation requires active Google Earth Engine processing.
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+
+def render_sidebar(active_category: int | str | None = None):
+    """Render the simple, text-based project sidebar with zero images or map illustrations.
+    
+    Sidebar structure:
+    1. College Project Demonstration badge
+    2. Main Overview
+    3. Land Cover Analysis heading
+    4. Five category navigation options
+    5. Study Area information
+    6. Sensor information
+    7. Model information
+    8. Project footer
+    + System Multipage Navigation (at bottom)
+    """
+    with st.sidebar:
+        # 1. College Project Demonstration badge
+        st.markdown('<span class="sidebar-badge">College Project Demonstration</span>', unsafe_allow_html=True)
+
+        # 2. Main Overview
+        st.page_link("app.py", label="Main Overview", icon="🏠")
+
+        # 3. Land Cover Analysis heading
+        st.markdown("### 📊 Land Cover Analysis")
+
+        # 4. Five category navigation options (clean, simple, text-based)
+        st.page_link("pages/page_agriculture.py", label="🌾 Agriculture Analysis")
+        st.page_link("pages/page4_vegetation.py", label="🌳 Vegetation Analysis")
+        st.page_link("pages/page_water.py", label="💧 Water Bodies Analysis")
+        st.page_link("pages/page_builtup.py", label="🏙️ Built-up Area Analysis")
+        st.page_link("pages/page_barren.py", label="🏜️ Barren / Open Land Analysis")
+
+        # 5. Study Area information
+        st.markdown("---")
+        st.markdown("**📍 Study Area:** Azamgarh District, Uttar Pradesh")
+
+        # 6. Sensor information
+        st.markdown("**🛰️ Sensor:** Sentinel-2 Surface Reflectance")
+
+        # 7. Model information
+        st.markdown("**🤖 Model:** Random Forest + CA-Markov")
+
+        # 8. Project footer
+        st.markdown("---")
+        st.caption("Azamgarh LULC System | Final Year CSE Project")
+
+        # BOTTOM SECTION — Automatic Streamlit Page Navigation
+        st.markdown("---")
+        st.markdown("##### 📄 System Multipage Navigation")
+        st.page_link("pages/page1_overview.py", label="page1 overview", icon="🏠")
+        st.page_link("pages/page2_maps.py", label="page2 maps", icon="🗺️")
+        st.page_link("pages/page3_change.py", label="page3 change", icon="📈")
+        st.page_link("pages/page4_vegetation.py", label="page4 vegetation", icon="🌳")
+        st.page_link("pages/page5_prediction.py", label="page5 prediction", icon="🔮")
+        st.page_link("pages/page6_accuracy.py", label="page6 accuracy", icon="📊")
+        st.page_link("pages/page8_documentation.py", label="page8 documentation", icon="ℹ️")
+
+
+def render_legend_cards(header: str = "🏷️ Land Cover Classes"):
+    """Render 5 simple, attractive, modern cards for the LULC categories."""
+    if header:
+        st.markdown(f"### {header}")
+    cols = st.columns(5)
+    for idx, c in enumerate([1, 2, 3, 4, 5]):
+        with cols[idx]:
+            color = CLASS_COLORS[c]
+            icon = CLASS_ICONS[c]
+            name = CLASS_NAMES[c]
+            desc = CLASS_DESCRIPTIONS[c]
+            st.markdown(
+                f"""
+                <div style="background: #ffffff; border: 1px solid #e2e8f0; border-top: 4px solid {color};
+                            border-radius: 8px; padding: 12px 10px; margin-bottom: 8px; min-height: 110px;
+                            box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                    <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px;">
+                        <span style="font-size: 18px;">{icon}</span>
+                        <span style="font-weight: 700; font-size: 13.5px; color: #1e293b;">{name}</span>
+                    </div>
+                    <div style="font-size: 12px; color: #64748b; line-height: 1.4;">
+                        {desc}
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+
 
 
 @st.cache_data

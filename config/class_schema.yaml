@@ -2,23 +2,23 @@
 classes:
   1:
     name: "Agriculture / Cropland"
-    color: "#F2D16B"
+    color: "#F2CF55"
     definition: "Land under cultivation or cropland-use fallow: strong seasonal NDVI swing across rabi/zaid/kharif; includes temporarily bare fields inside agricultural mosaics."
   2:
     name: "Vegetation"
-    color: "#2E7D32"
+    color: "#27833B"
     definition: "Trees, orchards, groves, plantations and other perennial vegetation: persistently high NDVI with LOW seasonal swing."
   3:
     name: "Water Bodies"
-    color: "#1E88E5"
+    color: "#2588D8"
     definition: "Rivers, ponds, tanks, reservoirs: open water at the mapping season."
   4:
     name: "Built-up Areas"
-    color: "#D32F2F"
+    color: "#D92F35"
     definition: "Buildings, roads, settlements, impervious surfaces."
   5:
     name: "Barren / Open Land"
-    color: "#A1887F"
+    color: "#A58B80"
     definition: "Bare soil/sand/open land that stays bare in ALL seasons (not just seasonal fallow)."
 
 # For sampling guidance ONLY. Dynamic World is a model output, NOT ground truth.
