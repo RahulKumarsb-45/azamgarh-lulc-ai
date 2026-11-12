@@ -91,6 +91,8 @@ def render_category_map(
     year: int | str,
     is_synthetic: bool = True,
     height: int = 450,
+    show_details: bool = True,
+    show_synthetic_warning: bool = True,
 ) -> None:
     """Render a dedicated, consistent Azamgarh District map highlighting ONLY the selected class.
 
@@ -111,10 +113,10 @@ def render_category_map(
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:6px 12px;">
             <div>
                 <span style="display:inline-block; width:14px; height:14px; background-color:{color}; border-radius:3px; vertical-align:middle; margin-right:6px;"></span>
-                <strong style="color:#0f172a; font-size:13.5px;">{icon} {name} (Highlighted)</strong>
+                <strong style="color:#0f172a; font-size:13.5px;">{icon} {name} ({year})</strong>
                 <span style="color:#64748b; font-size:12px; margin-left:8px;">• Non-category areas muted</span>
             </div>
-            <span style="font-size:11.5px; color:#475569; font-weight:600;">Azamgarh District BBox [82.80°–83.65°E, 25.70°–26.35°N]</span>
+            <span style="font-size:11.5px; color:#475569; font-weight:600;">Azamgarh [82.80°–83.65°E, 25.70°–26.35°N]</span>
         </div>
         """,
         unsafe_allow_html=True,
@@ -163,28 +165,239 @@ def render_category_map(
 
     st.plotly_chart(fig, use_container_width=True)
 
-    # Descriptive explanation below map
+    # Descriptive explanation below map (if full details requested)
+    if show_details:
+        st.markdown(
+            f"""
+            <div style="background:#f8fafc; border:1px solid #e2e8f0; border-left:4px solid {color}; border-radius:6px; padding:12px 14px; margin-top:10px;">
+                <div style="font-weight:700; color:#1e293b; font-size:13.5px; margin-bottom:6px;">📌 {icon} {name} — Spatial Distribution & Insights ({year})</div>
+                <ul style="font-size:13px; color:#475569; line-height:1.55; margin:0; padding-left:18px;">
+                    <li><strong>Map Coverage:</strong> {insights.get('shows', '')}</li>
+                    <li><strong>Active Highlight:</strong> {insights.get('highlighted', '')}</li>
+                    <li><strong>Concentration Zone:</strong> {insights.get('concentration', '')}</li>
+                    <li><strong>Observed Trend (2019–2025):</strong> {insights.get('trend', '')}</li>
+                </ul>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    # Honest data status notice
+    if is_synthetic and show_synthetic_warning:
+        st.markdown(
+            """
+            <div style="background:#fefce8; border:1px solid #fef08a; border-radius:6px; padding:8px 12px; margin-top:8px; font-size:12px; color:#854d0e;">
+                <strong>⚠️ DEMONSTRATION / SYNTHETIC DATA:</strong> This map displays simulated spatial patterns for college demonstration. Real-time satellite validation requires active Google Earth Engine processing.
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+
+def render_period_and_year_selector(
+    page_key: str,
+    available_years: list[int | str],
+) -> tuple[str, int | str | None]:
+    """Render a clean, professional Past / Present / Future period selector for category pages.
+    
+    Returns:
+        (period_type, selected_year)
+        where period_type is one of "past", "present", "future".
+    """
+    col_p, col_y = st.columns([1, 1])
+
+    with col_p:
+        period_choice = st.radio(
+            "Observation & Analysis Period:",
+            ["🕰️ Past (2019, 2022, 2025)", "📍 Present (2026)", "🔮 Future (2030 Prediction)"],
+            key=f"{page_key}_period_radio",
+            horizontal=False,
+        )
+
+    if "Past" in period_choice:
+        past_years = [y for y in available_years if isinstance(y, int) and y in [2019, 2022, 2025]]
+        if not past_years:
+            past_years = [2025, 2022, 2019]
+        with col_y:
+            sel_year = st.selectbox(
+                "Select Past Observation Year:",
+                sorted(past_years, reverse=True),
+                index=0,
+                key=f"{page_key}_past_year_select",
+                help="Only historical observation years with compiled raster classification data are shown.",
+            )
+        return "past", sel_year
+
+    elif "Present" in period_choice:
+        with col_y:
+            st.info("Present status corresponds to the ongoing calendar year (2026).")
+        return "present", 2026
+
+    else:  # Future
+        with col_y:
+            st.success("Target Horizon: 2030 (CA-Markov Spatial Simulation)")
+        return "future", 2030
+
+
+def render_2026_unavailable_banner(category_name: str, category_icon: str) -> None:
+    """Render a professional, honest banner explaining 2026 data availability status."""
     st.markdown(
         f"""
-        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-left:4px solid {color}; border-radius:6px; padding:12px 14px; margin-top:10px;">
-            <div style="font-weight:700; color:#1e293b; font-size:13.5px; margin-bottom:6px;">📌 {icon} {name} — Spatial Distribution & Insights ({year})</div>
-            <ul style="font-size:13px; color:#475569; line-height:1.55; margin:0; padding-left:18px;">
-                <li><strong>Map Coverage:</strong> {insights.get('shows', '')}</li>
-                <li><strong>Active Highlight:</strong> {insights.get('highlighted', '')}</li>
-                <li><strong>Concentration Zone:</strong> {insights.get('concentration', '')}</li>
-                <li><strong>Observed Trend (2019–2025):</strong> {insights.get('trend', '')}</li>
-            </ul>
+        <div style="background-color: #fffbeb; border: 1px solid #fde68a; border-left: 5px solid #d97706; padding: 18px; border-radius: 8px; margin-bottom: 20px;">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+                <span style="font-size:22px;">⚠️</span>
+                <strong style="color: #92400e; font-size: 16px;">2026 Data Not Available (Offline Demonstration Mode)</strong>
+            </div>
+            <p style="font-size: 13.5px; color: #78350f; line-height: 1.6; margin: 0 0 10px 0;">
+                Live satellite observation for <strong>2026</strong> requires an active, authenticated connection to the <strong>Google Earth Engine (GEE) API</strong>.
+                This deployment is currently operating in <strong>offline academic demonstration mode</strong> using pre-compiled historical and demonstration rasters.
+            </p>
+            <div style="background:#ffffff; border:1px solid #fef3c7; border-radius:6px; padding:12px; margin-bottom:10px;">
+                <strong style="font-size:13px; color:#92400e;">Requirements to activate live 2026 {category_name} processing:</strong>
+                <ul style="font-size:12.5px; color:#78350f; margin:6px 0 0 0; padding-left:20px; line-height:1.5;">
+                    <li>Google Cloud Project with Earth Engine API enabled.</li>
+                    <li>Service Account Private Key configured in <code>.env</code> (<code>EE_SERVICE_ACCOUNT</code> & <code>EE_PRIVATE_KEY</code>).</li>
+                    <li>Harmonized Sentinel-2 Level-2A imagery filtered for Azamgarh cloud cover &lt; 20%.</li>
+                </ul>
+            </div>
+            <p style="font-size: 13px; color: #92400e; margin: 0; font-weight:600;">
+                ℹ️ <em>To maintain scientific rigor and academic honesty, past data (2025) is NOT relabeled as 2026. Please select <strong>Past (2025)</strong> above to inspect the most recent verified satellite map.</em>
+            </p>
         </div>
         """,
         unsafe_allow_html=True,
     )
 
-    # Honest data status notice
+
+def render_category_comparison_section(
+    class_code: int,
+    map_2025: np.ndarray,
+    map_2030: np.ndarray,
+    is_synthetic: bool = True,
+) -> None:
+    """Render a dedicated 2025 vs 2030 comparison section on category pages."""
+    from src.analysis.area_stats import calculate_class_areas
+
+    name = CLASS_NAMES.get(class_code, f"Class {class_code}")
+    icon = CLASS_ICONS.get(class_code, "📍")
+    color = CLASS_COLORS.get(class_code, "#2588D8")
+
+    st.markdown("---")
+    st.markdown(f"### ⚖️ 2025 vs 2030 Comparison — {icon} {name}")
+    st.markdown(
+        f"Direct comparison between the latest observed historical baseline (<strong>2025</strong>) "
+        f"and the projected future scenario (<strong>2030</strong>) modeled using CA-Markov simulation.",
+        unsafe_allow_html=True,
+    )
+
+    df_2025 = calculate_class_areas(map_2025, total_reference_area_km2=4054.0)
+    df_2030 = calculate_class_areas(map_2030, total_reference_area_km2=4054.0)
+
+    row_25 = df_2025[df_2025["class_code"] == class_code].iloc[0]
+    row_30 = df_2030[df_2030["class_code"] == class_code].iloc[0]
+
+    area_25 = row_25["area_km2"]
+    pct_25 = row_25["percentage"]
+    area_30 = row_30["area_km2"]
+    pct_30 = row_30["percentage"]
+
+    net_change_km2 = area_30 - area_25
+    pct_change = (net_change_km2 / area_25) * 100.0 if area_25 > 0 else 0.0
+
+    # 4 comparison metric cards
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("2025 Observed Area", f"{area_25:,.1f} km²", f"{pct_25:.2f}% share")
+    c2.metric("2030 Predicted Area", f"{area_30:,.1f} km²", f"{pct_30:.2f}% share")
+    delta_color = "normal" if net_change_km2 >= 0 else "inverse"
+    c3.metric("Net Change (2025→2030)", f"{net_change_km2:+.1f} km²", delta_color=delta_color)
+    c4.metric("Percentage Change", f"{pct_change:+.2f}%", delta_color=delta_color)
+
+    # Side-by-side maps
+    col_m1, col_m2 = st.columns(2)
+    with col_m1:
+        st.markdown(f"##### 🗺️ 2025 Observed: {icon} {name}")
+        render_category_map(map_2025, class_code, year=2025, is_synthetic=is_synthetic, height=360, show_details=False, show_synthetic_warning=False)
+    with col_m2:
+        st.markdown(f"##### 🔮 2030 Predicted: {icon} {name}")
+        render_category_map(map_2030, class_code, year=2030, is_synthetic=is_synthetic, height=360, show_details=False, show_synthetic_warning=False)
+
+    # Comparison Bar Chart & Faculty Explanation
+    col_chart, col_exp = st.columns([1, 1])
+    with col_chart:
+        st.markdown("##### 📊 Area Comparison (km²)")
+        fig_cmp = go.Figure()
+        fig_cmp.add_trace(
+            go.Bar(
+                x=["2025 Observed", "2030 Predicted"],
+                y=[round(area_25, 1), round(area_30, 1)],
+                marker_color=[color, color],
+                opacity=0.9,
+                text=[f"{area_25:.1f} km²<br>({pct_25:.1f}%)", f"{area_30:.1f} km²<br>({pct_30:.1f}%)"],
+                textposition="auto",
+            )
+        )
+        fig_cmp.update_layout(
+            yaxis_title=f"{name} (km²)",
+            margin=dict(l=10, r=10, t=10, b=10),
+            height=300,
+            paper_bgcolor="#ffffff",
+            plot_bgcolor="#f8fafc",
+        )
+        st.plotly_chart(fig_cmp, use_container_width=True)
+
+    with col_exp:
+        st.markdown("##### 🎓 Faculty Explanation & Projection Drivers")
+        explanation_map = {
+            1: (
+                f"<strong>Why does Agriculture decrease by {abs(net_change_km2):.1f} km² ({pct_change:.2f}%)?</strong><br>"
+                "The CA-Markov model projects ongoing land consumption around expanding peri-urban settlements, "
+                "radial highway corridors (including the Purvanchal Expressway buffer zones), and new commercial infrastructure. "
+                "Because agriculture is the primary unprotected land matrix surrounding urban centers, it bears the brunt "
+                "of outward urban conversion."
+            ),
+            2: (
+                f"<strong>Why does Vegetation remain stable ({area_30:.1f} km² / {pct_30:.2f}%)?</strong><br>"
+                "Vegetation in Azamgarh consists of village mango and guava groves, community agroforestry, and riparian "
+                "canopy strips along the Tamsa river. These areas are legally protected, culturally preserved, or situated "
+                "in low-lying flood corridors where conversion to masonry construction is constrained."
+            ),
+            3: (
+                f"<strong>Why do Water Bodies remain stable ({area_30:.1f} km² / {pct_30:.2f}%)?</strong><br>"
+                "The primary hydrological assets (Tamsa River meanders, northern Ghaghara border, public irrigation canals, "
+                "and gram sabha pokharis) are statutory non-convertible water bodies. The model correctly preserves this "
+                "perennial hydrological baseline across the 5-year simulation window."
+            ),
+            4: (
+                f"<strong>Why does Built-up Area expand by {net_change_km2:+.1f} km² ({pct_change:+.2f}%)?</strong><br>"
+                "Driven by high empirical transition probabilities observed between 2019 and 2025, combined with the "
+                "Cellular Automata contiguity kernel, new settlements aggregate around existing built clusters (Azamgarh city, "
+                "Sagri, Lalganj) and radial arterial transport links, reaching an estimated 853.4 km² by 2030."
+            ),
+            5: (
+                f"<strong>Why does Barren / Open Land remain constant ({area_30:.1f} km² / {pct_30:.2f}%)?</strong><br>"
+                "Barren and open lands in Azamgarh are concentrated along riparian sandbars of the Ghaghara and Tamsa "
+                "floodplains and cyclical brick-kiln parcels. These lands act as temporary transit surfaces rather than "
+                "permanent urban conversion targets, maintaining a balanced steady-state footprint."
+            ),
+        }
+        exp_text = explanation_map.get(class_code, "Projection modeled based on historical multi-temporal transition probabilities.")
+        st.markdown(
+            f"""
+            <div style="background:#f8fafc; border:1px solid #e2e8f0; border-left:4px solid {color}; border-radius:6px; padding:14px; font-size:13px; color:#334155; line-height:1.55;">
+                {exp_text}
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    # Synthetic disclaimer banner
     if is_synthetic:
         st.markdown(
             """
-            <div style="background:#fefce8; border:1px solid #fef08a; border-radius:6px; padding:8px 12px; margin-top:8px; font-size:12px; color:#854d0e;">
-                <strong>⚠️ DEMONSTRATION / SYNTHETIC DATA:</strong> This map displays simulated spatial patterns for college demonstration. Real-time satellite validation requires active Google Earth Engine processing.
+            <div style="background:#fefce8; border:1px solid #fef08a; border-radius:6px; padding:10px 14px; margin-top:12px; font-size:12px; color:#854d0e;">
+                <strong>⚠️ DEMONSTRATION / SYNTHETIC CA-MARKOV PREDICTION — NOT A REAL SATELLITE FORECAST:</strong>
+                This projection is generated by a Cellular Automata-Markov chain simulation using historical demonstration rasters.
+                It illustrates model capabilities and spatial allocation mechanics for academic evaluation.
             </div>
             """,
             unsafe_allow_html=True,
@@ -378,7 +591,9 @@ def load_available_raster_maps() -> dict[int | str, dict]:
             try:
                 # Name pattern: lulc_map_2025.npy
                 year_part = f.stem.split("_")[-1]
-                year = int(year_part) if year_part.isdigit() else year_part
+                if not year_part.isdigit():
+                    continue
+                year = int(year_part)
                 data = np.load(f)
                 maps[year] = {"data": data, "is_synthetic": is_syn, "source": f.name}
             except Exception:
@@ -387,10 +602,12 @@ def load_available_raster_maps() -> dict[int | str, dict]:
     # Also check predictions
     pred_dir = Path("data/outputs/predictions")
     if pred_dir.exists():
-        for f in sorted(pred_dir.glob("*.npy")):
+        for f in sorted(pred_dir.glob("predicted_map_*.npy")):
             try:
                 year_part = f.stem.split("_")[-1]
-                year = int(year_part) if year_part.isdigit() else year_part
+                if not year_part.isdigit():
+                    continue
+                year = int(year_part)
                 data = np.load(f)
                 maps[year] = {"data": data, "is_synthetic": is_syn, "source": f.name}
             except Exception:

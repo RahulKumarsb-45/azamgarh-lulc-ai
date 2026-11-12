@@ -91,3 +91,44 @@ def test_demo_mode_detection():
     from dashboard.data_loader import is_demo_mode
     mode = is_demo_mode()
     assert isinstance(mode, bool)
+
+
+def test_category_pages_comparison_and_predictions():
+    """Verify category-specific 2030 predictions and comparison components."""
+    from pathlib import Path
+    import json
+    import numpy as np
+    from dashboard.data_loader import (
+        render_category_comparison_section,
+        render_2026_unavailable_banner,
+        render_period_and_year_selector,
+        load_available_raster_maps,
+    )
+
+    pred_file = Path("data/outputs/predictions/predicted_map_2030.npy")
+    assert pred_file.exists(), "2030 predicted raster must exist"
+    pred_data = np.load(pred_file)
+    assert pred_data.shape == (100, 100)
+
+    summary_file = Path("data/outputs/predictions/prediction_2030_summary.json")
+    assert summary_file.exists()
+    with open(summary_file, "r", encoding="utf-8") as f:
+        summary = json.load(f)
+    assert summary["prediction_year"] == 2030
+    assert len(summary["categories"]) == 5
+    total_area = sum(cat["area_km2"] for cat in summary["categories"].values())
+    assert abs(total_area - 4054.0) < 0.5, "Areas must sum strictly to Azamgarh reference area 4,054 km²"
+
+    # Verify category masks exist
+    mask_dir = Path("data/outputs/predictions/category_masks")
+    for cat in ["agriculture", "vegetation", "water", "builtup", "barren"]:
+        assert (mask_dir / f"predicted_map_2030_{cat}.npy").exists()
+
+    # Test comparison section and 2026 banner for each class
+    maps = load_available_raster_maps()
+    m25 = maps[2025]["data"]
+    m30 = maps[2030]["data"]
+    for c in [1, 2, 3, 4, 5]:
+        render_category_comparison_section(c, m25, m30, is_synthetic=True)
+        render_2026_unavailable_banner(f"Class {c}", "📍")
+
