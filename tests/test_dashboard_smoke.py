@@ -132,3 +132,33 @@ def test_category_pages_comparison_and_predictions():
         render_category_comparison_section(c, m25, m30, is_synthetic=True)
         render_2026_unavailable_banner(f"Class {c}", "📍")
 
+
+def test_five_analysis_pages_standalone_import_smoke():
+    """Verify all five land cover analysis pages import cleanly as standalone scripts on Streamlit Cloud."""
+    import importlib.util
+    from pathlib import Path
+
+    pages = {
+        "page_agriculture": ("dashboard/pages/page_agriculture.py", "render_agriculture_page"),
+        "page4_vegetation": ("dashboard/pages/page4_vegetation.py", "render_vegetation_page"),
+        "page_water": ("dashboard/pages/page_water.py", "render_water_page"),
+        "page_builtup": ("dashboard/pages/page_builtup.py", "render_builtup_page"),
+        "page_barren": ("dashboard/pages/page_barren.py", "render_barren_page"),
+    }
+
+    for mod_name, (rel_path, fn_name) in pages.items():
+        file_path = Path(rel_path).resolve()
+        assert file_path.is_file(), f"Page file {rel_path} must exist"
+
+        spec = importlib.util.spec_from_file_location(mod_name, str(file_path))
+        assert spec is not None, f"Failed to create spec for {mod_name}"
+        assert spec.loader is not None, f"Spec loader missing for {mod_name}"
+
+        module = importlib.util.module_from_spec(spec)
+        # Execute module as Streamlit Cloud does
+        spec.loader.exec_module(module)
+
+        render_fn = getattr(module, fn_name, None)
+        assert callable(render_fn), f"{fn_name} must be callable in {rel_path}"
+
+

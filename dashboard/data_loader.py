@@ -6,8 +6,14 @@ missing or synthetic files gracefully without crashing.
 from __future__ import annotations
 
 import json
+import sys
 from pathlib import Path
 from typing import Any
+
+# Ensure repository root is on sys.path for direct or multipage execution
+_repo_root = Path(__file__).resolve().parent.parent
+if str(_repo_root) not in sys.path:
+    sys.path.insert(0, str(_repo_root))
 
 import numpy as np
 import pandas as pd
@@ -276,7 +282,13 @@ def render_category_comparison_section(
     is_synthetic: bool = True,
 ) -> None:
     """Render a dedicated 2025 vs 2030 comparison section on category pages."""
-    from src.analysis.area_stats import calculate_class_areas
+    try:
+        from src.analysis.area_stats import calculate_class_areas
+    except (ImportError, ModuleNotFoundError):
+        _r = Path(__file__).resolve().parent.parent
+        if str(_r) not in sys.path:
+            sys.path.insert(0, str(_r))
+        from src.analysis.area_stats import calculate_class_areas
 
     name = CLASS_NAMES.get(class_code, f"Class {class_code}")
     icon = CLASS_ICONS.get(class_code, "📍")

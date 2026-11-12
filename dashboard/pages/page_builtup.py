@@ -4,29 +4,60 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-# Ensure repository root is on sys.path for direct or multipage execution
-REPO_ROOT = Path(__file__).resolve().parent.parent.parent
-if str(REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(REPO_ROOT))
+# Reliably ensure repository root and dashboard directory are on sys.path
+_current_file = Path(__file__).resolve()
+for _cand in [
+    _current_file.parent.parent.parent,
+    _current_file.parent.parent,
+    Path.cwd(),
+    Path.cwd().parent,
+]:
+    if (_cand / "dashboard" / "data_loader.py").is_file():
+        if str(_cand) not in sys.path:
+            sys.path.insert(0, str(_cand))
+        if str(_cand / "dashboard") not in sys.path:
+            sys.path.insert(0, str(_cand / "dashboard"))
+        break
 
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
-from dashboard.data_loader import (
-    CLASS_COLORS,
-    CLASS_ICONS,
-    CLASS_NAMES,
-    load_available_raster_maps,
-    render_2026_unavailable_banner,
-    render_category_comparison_section,
-    render_category_map,
-    render_legend_cards,
-    render_period_and_year_selector,
-    render_sidebar,
-)
-from src.analysis.area_stats import calculate_class_areas
+try:
+    from dashboard.data_loader import (
+        CLASS_COLORS,
+        CLASS_ICONS,
+        CLASS_NAMES,
+        load_available_raster_maps,
+        render_2026_unavailable_banner,
+        render_category_comparison_section,
+        render_category_map,
+        render_legend_cards,
+        render_period_and_year_selector,
+        render_sidebar,
+    )
+except (ImportError, ModuleNotFoundError):
+    from data_loader import (
+        CLASS_COLORS,
+        CLASS_ICONS,
+        CLASS_NAMES,
+        load_available_raster_maps,
+        render_2026_unavailable_banner,
+        render_category_comparison_section,
+        render_category_map,
+        render_legend_cards,
+        render_period_and_year_selector,
+        render_sidebar,
+    )
+
+try:
+    from src.analysis.area_stats import calculate_class_areas
+except (ImportError, ModuleNotFoundError):
+    _cand = Path(__file__).resolve().parent.parent.parent
+    if str(_cand) not in sys.path:
+        sys.path.insert(0, str(_cand))
+    from src.analysis.area_stats import calculate_class_areas
 
 
 def render_builtup_page():
